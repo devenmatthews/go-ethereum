@@ -348,7 +348,15 @@ func (c *Console) Welcome() {
 // Evaluate executes code and pretty prints the result to the specified output
 // stream.
 func (c *Console) Evaluate(statement string) {
-	defer func() {
+	//begin custom command
+  if (isCustomCommand(statement)) {//custom command,return
+        result := "Custom RPC output:  " + statement[strings.Index(statement,"\"")+1:len(statement)-3]
+        fmt.Println(result)
+        return
+    }
+
+  //end custom command
+  defer func() {
 		if r := recover(); r != nil {
 			fmt.Fprintf(c.printer, "[native] error: %v\n", r)
 		}
@@ -357,6 +365,11 @@ func (c *Console) Evaluate(statement string) {
 
 	// Avoid exiting Interactive when jsre was interrupted by SIGINT.
 	c.clearSignalReceived()
+}
+
+//check if command is custom
+func isCustomCommand(input string) bool{
+    return strings.HasPrefix(input,"eth.custom")
 }
 
 // interruptHandler runs in its own goroutine and waits for signals.
